@@ -1,6 +1,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "Detector.h"
+#include <time.h>
 
 using namespace std;
 
@@ -72,12 +73,10 @@ int main(int argc, char ** argv) {
     cout << "topK: " << topK << endl;
     cout << "save: " << save << endl;
     cout << "vis: " << vis << endl;
-
-    int deviceId = 0;
+    
     cv::VideoCapture capture;
-    capture.open(deviceId, cv::CAP_ANY);
-    int frameWidth = int(capture.get(cv::CAP_PROP_FRAME_WIDTH));
-    int frameHeight = int(capture.get(cv::CAP_PROP_FRAME_HEIGHT));
+
+    // Setting Detector Model:
     Detector detector;
     detector.setConfig(
         modelPath,
@@ -89,37 +88,57 @@ int main(int argc, char ** argv) {
         backendId,
         targetId
     );
-    cout << "-- finish setConfig" << endl;
     detector.build(); // build model
-    cout << "-- finish build" << endl;
-    detector.model->setInputSize(cv::Size(frameWidth, frameHeight));
-    cout << "-- finish setInputSize" << endl;
+
     cv::Mat frame;
-    if( capture.isOpened() )
-    {
-        cout << "Video capturing has been started ..." << endl;
-        cv::TickMeter tm;
-        for(;;)
+    if (parser.has("input")){
+        std::string source = parser.get<std::string>("input");
+        capture.open(source);
+        if (!capture.isOpened())
         {
-            capture >> frame;
-            if( frame.empty() )
-                break;
-            cv::Mat faces;
-            tm.start();
-            detector.model->detect(frame, faces);
-            tm.stop();
-
-            cv::Mat vis_frame = visualize(frame, faces, false, tm.getFPS());
-
-            imshow("libfacedetection demo", vis_frame);
-            tm.reset();
-
-            char c = (char)cv::waitKey(10);
-            if( c == 27 || c == 'q' || c == 'Q' )
-                break;
+            cout  << "Could not open the input video: " << source << endl;
+            return -1;
         }
+        cout << "Video File has been started ..." << endl;
     }else{
-        cout << "Can't open camera!!" << endl;
+        int deviceId = 0;
+        capture.open(deviceId, cv::CAP_ANY);
+        if( capture.isOpened() )
+        {
+            cout << "Video capturing has been started ..." << endl;
+            
+        }else{
+            cout << "Can't open camera!!" << endl;
+        }
     }
+
+    int frameWidth = int(capture.get(cv::CAP_PROP_FRAME_WIDTH));
+    int frameHeight = int(capture.get(cv::CAP_PROP_FRAME_HEIGHT));
+    detector.model->setInputSize(cv::Size(frameWidth, frameHeight));
+    
+    cv::TickMeter tm;
+    clock_t start, finish;
+    for(;;)
+    {
+        start = clock();
+        capture >> frame;
+        if( frame.empty() )
+            break;
+        cv::Mat faces;
+        // tm.start();
+        detector.model->detect(frame, faces);
+        cv::Mat vis_frame = visualize(frame, faces, false);
+        // tm.stop();
+        finish = clock();
+        double duration = (double)(finish - start) / CLOCKS_PER_SEC;
+        double fps = 1 / duration;
+        cv::putText(vis_frame, cv::format("FPS: %.2f", fps), cv::Point2i(0, 15), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0));
+        imshow("libfacedetection demo", vis_frame);
+        // tm.reset();
+        char c = (char)cv::waitKey(10);
+        if( c == 27 || c == 'q' || c == 'Q' )
+            break;
+    }
+    
     return 0;
 }
