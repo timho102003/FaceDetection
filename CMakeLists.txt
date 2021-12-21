@@ -12,7 +12,6 @@ add_definitions(${OpenCV_DEFINITIONS})
 
 # Find all executables
 file(GLOB project_SRCS src/*.cpp) #src/*.h
-
 # Add project executable
 add_executable(FaceDetection ${project_SRCS})
 target_link_libraries(FaceDetection ${OpenCV_LIBRARIES})

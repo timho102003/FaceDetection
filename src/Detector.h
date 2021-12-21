@@ -7,16 +7,20 @@
 #include <opencv2/objdetect.hpp>
 
 #include <iostream>
+#include <vector>
+#include <memory>
+#include "Pedestrian.h"
 
 using namespace std;
 
 class Detector
 {
 public:
-    Detector(){}
-    ~Detector(){}
+    Detector() {}
+    ~Detector() {}
     cv::Ptr<cv::FaceDetectorYN> model;
-    void setConfig(cv::String model_path, string config, cv::Size input_size, float score_thresh, float nms_thresh, int topK, int backend_id, int target_id) {
+    void setConfig(cv::String model_path, string config, cv::Size input_size, float score_thresh, float nms_thresh, int topK, int backend_id, int target_id)
+    {
         _model_path = model_path;
         _config = config;
         _in_size = input_size;
@@ -26,7 +30,8 @@ public:
         _backend_id = backend_id;
         _target_id = target_id;
     }
-    void build(){ 
+    void build()
+    {
         model = cv::FaceDetectorYN::create(
             _model_path,
             _config,
@@ -35,9 +40,10 @@ public:
             _nms_threshold,
             _top_k,
             _backend_id,
-            _target_id
-        );
+            _target_id);
     }
+    void forward(cv::Mat input);
+    void simulate(std::shared_ptr<cv::Mat> &frame);
 
 private:
     cv::String _model_path;
@@ -48,5 +54,6 @@ private:
     int _top_k;
     int _backend_id;
     int _target_id;
+    std::vector<Pedestrian> _pedestrian;
 };
 #endif // DETECTOR_H

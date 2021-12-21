@@ -18,13 +18,14 @@ class MoveObject{
         // getter and setter
         int getID() { return _id; }
         ObjectType getType() { return _type; }
-        void setBoundingBox(double x1, double y1, double x2, double y2);
-        void getBoundingBox(double &x1, double &y1, double &x2, double &y2);
+        void setBoundingBox(cv::Mat bboxs);
+        void getBoundingBox(cv::Point2f &top_left, cv::Point2f &buttom_right);
 
     protected:
         ObjectType _type;                 
         int _id;                          
-        double _posX1, _posY1, _posX2, _posY2;  // Bounding Box
+        cv::Point2f _top_left; 
+        cv::Point2f _buttom_right;  // Bounding Box
         std::vector<std::thread> threads;
         static std::mutex _mtx;           
     private:

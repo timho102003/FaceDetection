@@ -11,23 +11,20 @@ MoveObject::MoveObject()
     _id = _idCnt++;
 }
 
-void MoveObject::setBoundingBox(double x1, double y1, double x2, double y2){
-    _posX1 = x1;
-    _posY1 = y1;
-    _posX2 = x2;
-    _posY2 = y2;
+void MoveObject::setBoundingBox(cv::Mat bboxs){
+    cv::Point2f _top_left = cv::Point2f(bboxs.at<float>(0, 0), bboxs.at<float>(0, 1));
+    cv::Point2f _buttom_right = cv::Point2f(bboxs.at<float>(0, 2), bboxs.at<float>(0, 3));
 }
 
-void MoveObject::getBoundingBox(double &x1, double &y1, double &x2, double &y2){
-    x1 = _posX1;
-    x2 = _posX2;
-    y1 = _posY1;
-    y2 = _posY2;
+void MoveObject::getBoundingBox(cv::Point2f &top_left, cv::Point2f &buttom_right){
+    top_left = _top_left;
+    buttom_right = _buttom_right;
 }
 
 MoveObject::~MoveObject()
 {
     // set up thread barrier before this object is destroyed
-    std::for_each(threads.begin(), threads.end(), [](std::thread &t)
-                  { t.join(); });
+    for ( auto it=threads.begin(); it!=threads.end(); it++) {
+        it->join();
+    };
 }
