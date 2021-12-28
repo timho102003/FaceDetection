@@ -13,7 +13,6 @@ void Detector::forward(cv::Mat input){
 void Detector::simulate(std::shared_ptr<cv::Mat> &frame){
     for (auto it = _pedestrian.begin(); it != _pedestrian.end(); it++)
     {
-        // remove odd numbers
         it->simulate(frame);
         _pedestrian.erase(it--);
     }

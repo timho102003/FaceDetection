@@ -3,7 +3,7 @@
 #include <iostream>
 
 int MoveObject::_idCnt = 0;
-std::mutex MoveObject::_mtx;
+// std::mutex MoveObject::_mtx;
 
 MoveObject::MoveObject()
 {
@@ -19,12 +19,4 @@ void MoveObject::setBoundingBox(cv::Mat bboxs){
 void MoveObject::getBoundingBox(cv::Point2f &top_left, cv::Point2f &buttom_right){
     top_left = _top_left;
     buttom_right = _buttom_right;
-}
-
-MoveObject::~MoveObject()
-{
-    // set up thread barrier before this object is destroyed
-    for ( auto it=threads.begin(); it!=threads.end(); it++) {
-        it->join();
-    };
 }

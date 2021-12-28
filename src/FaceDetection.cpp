@@ -3,41 +3,14 @@
 #include "Detector.h"
 #include <time.h>
 #include <memory>
-
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <stdexcept>
 using namespace std;
 
-static cv::Mat visualize(cv::Mat input, cv::Mat faces, bool print_flag = false, double fps = -1, int thickness = 2)
-{
-    cv::Mat output = input.clone();
-
-    if (fps > 0)
-    {
-        cv::putText(output, cv::format("FPS: %.2f", fps), cv::Point2i(0, 15), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0));
-    }
-
-    for (int i = 0; i < faces.rows; i++)
-    {
-        if (print_flag)
-        {
-            cout << "Face " << i
-                 << ", top-left coordinates: (" << faces.at<float>(i, 0) << ", " << faces.at<float>(i, 1) << "), "
-                 << "box width: " << faces.at<float>(i, 2) << ", box height: " << faces.at<float>(i, 3) << ", "
-                 << "score: " << faces.at<float>(i, 14) << "\n";
-        }
-
-        // Draw bounding box
-        cv::rectangle(output, cv::Rect2i(int(faces.at<float>(i, 0)), int(faces.at<float>(i, 1)), int(faces.at<float>(i, 2)), int(faces.at<float>(i, 3))), cv::Scalar(0, 255, 0), thickness);
-        // Draw landmarks
-        cv::circle(output, cv::Point2i(int(faces.at<float>(i, 4)), int(faces.at<float>(i, 5))), 2, cv::Scalar(255, 0, 0), thickness);
-        cv::circle(output, cv::Point2i(int(faces.at<float>(i, 6)), int(faces.at<float>(i, 7))), 2, cv::Scalar(0, 0, 255), thickness);
-        cv::circle(output, cv::Point2i(int(faces.at<float>(i, 8)), int(faces.at<float>(i, 9))), 2, cv::Scalar(0, 255, 0), thickness);
-        cv::circle(output, cv::Point2i(int(faces.at<float>(i, 10)), int(faces.at<float>(i, 11))), 2, cv::Scalar(255, 0, 255), thickness);
-        cv::circle(output, cv::Point2i(int(faces.at<float>(i, 12)), int(faces.at<float>(i, 13))), 2, cv::Scalar(0, 255, 255), thickness);
-        // Put score
-        cv::putText(output, cv::format("%.4f", faces.at<float>(i, 14)), cv::Point2i(int(faces.at<float>(i, 0)), int(faces.at<float>(i, 1)) + 15), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0));
-    }
-    return output;
-}
+std::mutex mutex1, mutex2, mutex3;
+std::condition_variable _cond;
 
 int main(int argc, char **argv)
 {
@@ -105,16 +78,8 @@ int main(int argc, char **argv)
     }
     else
     {
-        int deviceId = 0;
-        capture.open(deviceId, cv::CAP_ANY);
-        if (capture.isOpened())
-        {
-            cout << "Video capturing has been started ..." << endl;
-        }
-        else
-        {
-            cout << "Can't open camera!!" << endl;
-        }
+        std::cout << "Please provide video clips" << std::endl;
+        return -1;
     }
 
     int frameWidth = int(capture.get(cv::CAP_PROP_FRAME_WIDTH));
@@ -124,24 +89,61 @@ int main(int argc, char **argv)
     cv::Mat frame;
     cv::TickMeter tm;
     clock_t start, finish;
-    for (;;)
-    {
-        start = clock();
+    std::queue<cv::Mat> video_input_queue;
+    std::queue<cv::Mat> video_show_queue;
+
+    std::cout << "Start Initializing Video..." << std::endl; 
+    int preload_cnt = 0;
+    while(preload_cnt<60){
         capture >> frame;
-        if (frame.empty())
-            break;
+            if (frame.empty()){
+            if (video_input_queue.size()==0){
+                std::cout << "Error: video is empty";
+                return -1;
+            }else{
+                break;
+            }
+        }
+        video_input_queue.push(frame);
+        preload_cnt++;
+    }
+    std::cout << "Video Frame " << video_input_queue.size() << " are preloaded into queue." << std::endl;
+    std::cout << "Finish Initializing Video..." << std::endl; 
+
+    bool is_video_end = false;
+    bool is_input_queue_end = false;
+
+    for(;;)
+    {
+        // start = clock();
+        capture >> frame;
+        cv::Mat current_frame;
+        if (!frame.empty())
+            video_input_queue.push(frame);
+        if (!video_input_queue.empty()){
+            current_frame = video_input_queue.front();
+            video_input_queue.pop();
+        }
         cv::Mat faces;
-        detector.forward(frame);
-        std::shared_ptr<cv::Mat> show_frame = std::make_shared<cv::Mat>(frame.clone());
-        finish = clock();
-        double duration = (double)(finish - start) / CLOCKS_PER_SEC;
-        double fps = 1 / duration;
-        // imshow("libfacedetection demo", vis_frame);
-        // tm.reset();
+        auto f0 = [&detector, &current_frame, &video_show_queue]() {
+            detector.forward(current_frame);
+            std::shared_ptr<cv::Mat> show_frame = std::make_shared<cv::Mat>(current_frame.clone());
+            detector.simulate(show_frame);
+            std::lock_guard<std::mutex> lock1(mutex1);
+            video_show_queue.push(*show_frame.get());
+        };
+        std::thread t1 = std::thread(f0);
+        if (!video_show_queue.empty()){
+            std::lock_guard<std::mutex> lock2(mutex2);
+            cv::Mat current_show = video_show_queue.front();
+            video_show_queue.pop();
+            cv::imshow("face detection", current_show);
+        }
+        t1.join();
         char c = (char)cv::waitKey(10);
         if (c == 27 || c == 'q' || c == 'Q')
             break;
     }
-
+    std::cout << "Finish Face Detection!!" << std::endl;
     return 0;
 }

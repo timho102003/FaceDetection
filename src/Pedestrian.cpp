@@ -3,7 +3,6 @@
 Pedestrian::Pedestrian(cv::Mat data)
 {
     _type = ObjectType::objPedestrian;
-    _type = ObjectType::objPedestrian;
     auto bbox = data.colRange(0, 4);
     setBoundingBox(bbox);
     auto lm = data.colRange(4, num_lm_pt);
@@ -29,5 +28,5 @@ void Pedestrian::draw(std::shared_ptr<cv::Mat> &frame){
 }
 
 void Pedestrian::simulate(std::shared_ptr<cv::Mat> &frame){
-    std::cout << "123" << std::endl;
+    draw(frame);
 }
