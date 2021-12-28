@@ -1,26 +1,24 @@
-# CPPND: Capstone Hello World Repo
+# Face Detection Project: Start from Capstone Hello World Repo
 
-This is a starter repo for the Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213).
-
-The Capstone Project gives you a chance to integrate what you've learned throughout this program. This project will become an important part of your portfolio to share with current and future colleagues and employers.
-
-In this project, you can build your own C++ application starting with this repo, following the principles you have learned throughout this Nanodegree Program. This project will demonstrate that you can independently create applications using a wide range of C++ features.
+This project starts from the starter repo for the Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213).
 
 ## Dependencies for Running Locally
-* cmake >= 3.7
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
+* macos: 12.0.1 (apple silicon: m1 pro)
+* cmake == 3.22.1
+* gnu make == 3.81 (macos)
+* gcc/g++ == 11.2.0
+* opencv == 4.5.4
+
+## Data:
+* checkpoints: yunet.onnx (face detection and landmark predictor)
+* example video: data/videos/demo_video.mov
 
 ## Basic Build Instructions
 
 1. Clone this repo.
-2. Make a build directory in the top level directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./HelloWorld`.
+2. Make a lib directory in the top level directory: `mkdir lib`
+3. Build opencv: `bash ./make_env.sh`
+4. Make a build directory in the top level directory: `mkdir build && cd build`
+5. Compile: `cmake .. && make`
+6. Run it: `./FaceDetection -m=../data/checkpoints/yunet.onnx -v=../data/videos/demo_video.mov`
+7. Press `Q / q` to quit
