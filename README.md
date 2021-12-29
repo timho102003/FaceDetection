@@ -14,7 +14,6 @@ This project starts from the starter repo for the Capstone project in the [Udaci
 * example video: data/videos/demo_video.mov
 
 ## Basic Build Instructions
-
 1. Clone this repo.
 2. Make a lib directory in the top level directory: `mkdir lib`
 3. Build opencv: `bash ./make_env.sh`
@@ -22,3 +21,18 @@ This project starts from the starter repo for the Capstone project in the [Udaci
 5. Compile: `cmake .. && make`
 6. Run it: `./FaceDetection -m=../data/checkpoints/yunet.onnx -v=../data/videos/demo_video.mov`
 7. Press `Q / q` to quit
+
+## Rubrics
+1. Loop, Function, I/O:
+   - user input and process input: [user input](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/FaceDetection.cpp#L17), [process input](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/FaceDetection.cpp#L35)
+   - read data from file: [read data](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/Detector.h#L36)
+2. Object Oriented Programming: 
+   - [constructor with initialization](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/Pedestrian.h#L10)
+   - [inheritance](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/Pedestrian.h#L7)
+   - [encapsulate](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/Detector.h)
+3. Memory Management:
+   - [reference in function declaraion](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/FaceDetection.cpp#L128)
+   - [smart pointer](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/Pedestrian.cpp#L24)
+4. Concurrency:
+   - [thread](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/FaceDetection.cpp#L135)
+   - [mutex or lock](https://github.com/timho102003/FaceDetection/blob/9a56259624709324d759168102e47262f6941a9e/src/FaceDetection.cpp#L135) 
