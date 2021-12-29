@@ -2,6 +2,8 @@
 
 This project starts from the starter repo for the Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213).
 
+https://user-images.githubusercontent.com/13211302/147681313-c0a0f6c8-4dee-4f10-81e0-9f2fc705e009.mov
+
 ## Dependencies for Running Locally
 * macos: 12.0.1 (apple silicon: m1 pro)
 * cmake == 3.22.1
